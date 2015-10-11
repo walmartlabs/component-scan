@@ -1,0 +1,19 @@
+{
+  "name": "component-scan",
+  "version": "0.0.1",
+  "description": "A simple react component scanner",
+  "main": "src/scanner.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "component-scan": "./index.js"
+  },
+  "author": "Jack Herrington <jherrington@walmartlabs.com>",
+  "license": "MIT",
+  "dependencies": {
+    "babel": "^5.8.23",
+    "commander": "^2.8.1",
+    "glob": "^5.0.15"
+  }
+}
