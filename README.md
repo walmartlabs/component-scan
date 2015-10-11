@@ -22,3 +22,7 @@ component-scan -s src -o components.json
 ```
 node index.js -s examples
 ```
+
+## License
+
+Licensed under [MIT](https://opensource.org/licenses/MIT).
