@@ -4,7 +4,8 @@
   "description": "A simple react component scanner",
   "main": "src/scanner.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha",
+    "coverage": "istanbul cover _mocha -- -R spec"
   },
   "repository": {
     "type": "git",
@@ -19,5 +20,10 @@
     "babel": "^5.8.23",
     "commander": "^2.8.1",
     "glob": "^5.0.15"
+  },
+  "devDependencies": {
+    "chai": "*",
+    "mocha": "*",
+    "istanbul": "*"
   }
 }

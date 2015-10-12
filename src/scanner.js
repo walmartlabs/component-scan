@@ -74,5 +74,19 @@ module.exports = function(fname) {
     state.lastToken = tok;
   }
 
+  components = components.sort(function(a,b) {
+    if(a.component < b.component) {
+      return -1;
+    } else if(a.component > b.component) {
+      return 1;
+    } else if(a.startLine < b.startLine) {
+      return -1;
+    } else if(a.startLine < b.startLine) {
+      return 1;
+    } else {
+      return 0;
+    }
+  })
+
   return components;
 }
