@@ -75,15 +75,24 @@ module.exports = function(fname) {
   }
 
   components = components.sort(function(a,b) {
+    /* istanbul ignore next */
     if(a.component < b.component) {
       return -1;
-    } else if(a.component > b.component) {
+    }
+    /* istanbul ignore next */
+    else if(a.component > b.component) {
       return 1;
-    } else if(a.startLine < b.startLine) {
+    }
+    /* istanbul ignore next */
+    else if(a.startLine < b.startLine) {
       return -1;
-    } else if(a.startLine < b.startLine) {
+    }
+    /* istanbul ignore next */
+    else if(a.startLine < b.startLine) {
       return 1;
-    } else {
+    }
+    /* istanbul ignore next */
+    else {
       return 0;
     }
   })
