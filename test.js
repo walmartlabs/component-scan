@@ -8,21 +8,13 @@ var findComponents = require('./src/scanner.js');
 
 program
   .version('0.0.1')
-  .option('-s --src <dir>', 'Source location', null, 'src')
-  .option('-o --output <file>', 'Output file')
+  .option('-s --src <file>', 'Source location', null, 'src')
   .parse(process.argv);
 
-glob(program.src + '/**/*.jsx', function(er, files) {
+glob(program.src, function(er, files) {
   var output = {};
   for(var f in files) {
-    try {
-      var found = findComponents(files[f]);
-      if(found.length > 0) {
-        output[files[f]] = found;
-      }
-    } catch(e) {
-      console.log('Error parsing: ' + files[f]);
-    }
+    output[files[f]] = findComponents(files[f]);
   }
   if(program.output) {
     fs.writeFileSync(program.output,

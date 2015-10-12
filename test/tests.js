@@ -17,4 +17,17 @@ describe('Scanner', function() {
       assert.equal(11, components[2].endLine);
     });
   });
+
+  describe('nested', function () {
+    it('should find two components', function () {
+      var components = findComponents('examples/nested.jsx');
+      assert.equal(2, components.length);
+      assert.equal('Foo', components[0].component);
+      assert.equal('Nested', components[1].component);
+      assert.equal(6, components[0].startLine);
+      assert.equal(6, components[1].startLine);
+      assert.equal(7, components[0].endLine);
+      assert.equal(6, components[1].endLine);
+    });
+  });
 });
