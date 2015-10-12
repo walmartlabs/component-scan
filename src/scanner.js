@@ -109,7 +109,7 @@ module.exports = function(fname, done) {
     var scanStack = [];
     var callback = function(event, data) {
       if(event === Scanner.EVENT_COMPONENT) {
-        data.snippet = lines.slice(data.startLine - 1, data.endLine);
+        data.snippet = lines.slice(data.startLine - 1, data.endLine).join("\n");
         components.push(data);
       }
       if(event === Scanner.EVENT_END) {
