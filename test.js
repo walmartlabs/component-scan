@@ -3,6 +3,7 @@
 var fs = require('fs');
 var program = require('commander');
 var glob = require('glob');
+var async = require('async');
 
 var findComponents = require('./src/scanner.js');
 
@@ -13,13 +14,18 @@ program
 
 glob(program.src, function(er, files) {
   var output = {};
-  for(var f in files) {
-    output[files[f]] = findComponents(files[f]);
-  }
-  if(program.output) {
-    fs.writeFileSync(program.output,
-      JSON.stringify(output, null, 2));
-  } else {
+  async.each(files, function(file, done) {
+    try {
+      findComponents(file, function(found) {
+        if(found.length > 0) {
+          output[file] = found;
+        }
+        done();
+      });
+    } catch(e) {
+      console.log('Error parsing: ' + files[f]);
+    }
+  }, function() {
     console.log(JSON.stringify(output, null, 2));
-  }
+  });
 });

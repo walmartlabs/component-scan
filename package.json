@@ -17,9 +17,11 @@
   "author": "Jack Herrington <jherrington@walmartlabs.com>",
   "license": "MIT",
   "dependencies": {
+    "async": "^1.4.2",
     "babel": "^5.8.23",
     "commander": "^2.8.1",
-    "glob": "^5.0.15"
+    "glob": "^5.0.15",
+    "line-by-line": "^0.1.4"
   },
   "devDependencies": {
     "chai": "*",

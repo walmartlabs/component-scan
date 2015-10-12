@@ -1,4 +1,5 @@
 var babel = require('babel');
+var LineByLineReader = require('line-by-line');
 
 function Scanner(callback) {
   this.inTag = false;
@@ -81,57 +82,79 @@ Scanner.prototype.process = function(tok) {
   this.lastToken = tok;
 }
 
-module.exports = function(fname) {
-  var out = babel.transformFileSync(fname);
+var _getCodeLines = function(fname, done) {
+  var lr = new LineByLineReader(fname);
 
-  var components = [];
-  var scanStack = [];
-  var callback = function(event, data) {
-    if(event === Scanner.EVENT_COMPONENT) {
-      components.push(data);
-    }
-    if(event === Scanner.EVENT_END) {
-      if(scanStack.length > 1) {
-        scanStack.pop();
+  var lines = [];
+  /* istanbul ignore next */
+  lr.on('error', function(err) {
+    /* istanbul ignore next */
+    done([]);
+  });
+
+  lr.on('line', function(line) {
+    lines.push(line);
+  });
+
+  lr.on('end', function() {
+    done(lines);
+  });
+}
+
+module.exports = function(fname, done) {
+  _getCodeLines(fname, function(lines) {
+    var out = babel.transformFileSync(fname);
+
+    var components = [];
+    var scanStack = [];
+    var callback = function(event, data) {
+      if(event === Scanner.EVENT_COMPONENT) {
+        data.snippet = lines.slice(data.startLine - 1, data.endLine);
+        components.push(data);
+      }
+      if(event === Scanner.EVENT_END) {
+        if(scanStack.length > 1) {
+          scanStack.pop();
+        }
       }
     }
-  }
-  scanStack.push(new Scanner(callback));
+    scanStack.push(new Scanner(callback));
 
-  for(var t in out.ast.tokens) {
-    var tok = out.ast.tokens[t];
+    for(var t in out.ast.tokens) {
+      var tok = out.ast.tokens[t];
 
-    if(tok.type.label === 'jsxTagStart') {
-      if(scanStack[scanStack.length-1].isInTag()) {
-        scanStack.push(new Scanner(callback));
+      if(tok.type.label === 'jsxTagStart') {
+        if(scanStack[scanStack.length-1].isInTag()) {
+          scanStack.push(new Scanner(callback));
+        }
       }
+
+      scanStack[scanStack.length-1].process(tok);
     }
 
-    scanStack[scanStack.length-1].process(tok);
-  }
+    components = components.sort(function(a,b) {
+      /* istanbul ignore next */
+      if(a.component < b.component) {
+        return -1;
+      }
+      /* istanbul ignore next */
+      else if(a.component > b.component) {
+        return 1;
+      }
+      /* istanbul ignore next */
+      else if(a.startLine < b.startLine) {
+        return -1;
+      }
+      /* istanbul ignore next */
+      else if(a.startLine < b.startLine) {
+        return 1;
+      }
+      /* istanbul ignore next */
+      else {
+        return 0;
+      }
+    })
 
-  components = components.sort(function(a,b) {
-    /* istanbul ignore next */
-    if(a.component < b.component) {
-      return -1;
-    }
-    /* istanbul ignore next */
-    else if(a.component > b.component) {
-      return 1;
-    }
-    /* istanbul ignore next */
-    else if(a.startLine < b.startLine) {
-      return -1;
-    }
-    /* istanbul ignore next */
-    else if(a.startLine < b.startLine) {
-      return 1;
-    }
-    /* istanbul ignore next */
-    else {
-      return 0;
-    }
-  })
-
-  return components;
+    done(components);
+  });
 }
