@@ -2,7 +2,7 @@
   "name": "component-scan",
   "version": "0.0.5",
   "description": "A simple react component scanner",
-  "main": "src/scanner.js",
+  "main": "index.js",
   "scripts": {
     "test": "mocha",
     "coverage": "istanbul cover _mocha -- -R spec"
@@ -12,7 +12,7 @@
     "url": "git://github.com/walmartreact/component-scan.git"
   },
   "bin": {
-    "component-scan": "./index.js"
+    "component-scan": "./scanner.js"
   },
   "author": "Jack Herrington <jherrington@walmartlabs.com>",
   "license": "MIT",
