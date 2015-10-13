@@ -1,5 +1,6 @@
 var assert = require('assert');
 var findComponents = require('../src/scanner');
+var findComponentsBatch = require('../src/batch');
 
 describe('Scanner', function() {
   describe('simple', function () {
@@ -32,6 +33,15 @@ describe('Scanner', function() {
         assert.equal(6, components[1].endLine);
         done();
       });
+    });
+  });
+
+  describe('batch', function () {
+    it('should find three components', function (done) {
+      findComponentsBatch('examples/simple.jsx', function(components) {
+        assert.equal(3, components['examples/simple.jsx'].length);
+        done();
+      }, function() {});
     });
   });
 });
