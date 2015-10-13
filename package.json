@@ -1,6 +1,6 @@
 {
   "name": "component-scan",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "A simple react component scanner",
   "main": "index.js",
   "scripts": {
