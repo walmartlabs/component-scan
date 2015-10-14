@@ -1,23 +1,23 @@
 #!/usr/bin/env node
 
-var fs = require('fs');
-var program = require('commander');
+import fs from 'fs';
+import program from 'commander';
 
-var findComponentsBatch = require('./src/batch.js');
+import findComponentsBatch from './batch.js';
 
 program
-  .version('0.0.6')
+  .version('0.0.7')
   .option('-s --src <dir>', 'Source location', null, 'src')
   .option('-o --output <file>', 'Output file')
   .parse(process.argv);
 
-findComponentsBatch(program.src + '/**/*.jsx', function(output) {
+findComponentsBatch(program.src + '/**/*.jsx', (output) => {
   if(program.output) {
     fs.writeFileSync(program.output,
       JSON.stringify(output, null, 2));
   } else {
     console.log(JSON.stringify(output, null, 2));
   }
-}, function(file, e) {
+}, (file, e) => {
   console.log("Error parsing "+file);
 });

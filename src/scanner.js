@@ -1,138 +1,86 @@
-var babel = require('babel');
-var LineByLineReader = require('line-by-line');
+import * as babel from 'babel';
+import LineByLineReader from 'line-by-line';
 
-function Scanner(callback) {
-  this.inTag = false;
-  this.inClosingTag = false;
-  this.tagName = null;
-  this.locStart = null;
-  this.firstToken = false;
-  this.inEndTag = false;
-  this.extendName = false;
-  this.lastToken = null;
-  this.tagStack = [];
-  this.callback = callback;
-}
+let _getCodeLines = (fname, done) => {
+  let lr = new LineByLineReader(fname);
 
-Scanner.EVENT_COMPONENT = 'COMPONENT';
-Scanner.EVENT_END = 'END';
-
-Scanner.prototype.isInTag = function() {
-  return this.inTag;
-}
-
-Scanner.prototype.process = function(tok) {
-  if(tok.type.label === 'jsxTagStart') {
-    this.inTag = true;
-    this.inClosingTag = false;
-    this.tagName = null;
-    this.locStart = tok.loc.start.line;
-    this.firstToken = true;
-    this.inEndTag = false;
-    this.extendName = false;
-  } else if(tok.type.label === 'jsxTagEnd') {
-    this.inTag = false;
-    if(this.inClosingTag) {
-      if(this.inEndTag) {
-        var curTag = this.tagStack.pop();
-        this.callback(Scanner.EVENT_COMPONENT, {
-          component: curTag.name,
-          startLine: curTag.start,
-          endLine: tok.loc.start.line
-        });
-      } else {
-        this.callback(Scanner.EVENT_COMPONENT, {
-          component: this.tagName,
-          startLine: this.locStart,
-          endLine: tok.loc.start.line
-        });
-      }
-      if(this.tagStack.length === 0) {
-        this.callback(Scanner.EVENT_END, null);
-      }
-    } else {
-      this.tagStack.push({
-        name: this.tagName,
-        start: this.locStart
-      });
-    }
-  } else if(tok.type.label === 'jsxName') {
-    this.firstToken = false;
-    if(this.inTag && this.tagName === null) {
-      this.tagName = tok.value;
-    }
-    if(this.extendName) {
-      this.tagName += '.' + tok.value;
-      this.extendName = false;
-    }
-  } else if(tok.type.label === '/') {
-    if(this.firstToken) {
-      this.inEndTag = true;
-    }
-    this.inClosingTag = true;
-  } else if(tok.type.label === '.') {
-    if(this.inTag && this.lastToken.type.label === 'jsxName') {
-      this.extendName = true;
-    } else {
-      this.extendName = false;
-    }
-  } else {
-    this.firstToken = false;
-  }
-  this.lastToken = tok;
-}
-
-var _getCodeLines = function(fname, done) {
-  var lr = new LineByLineReader(fname);
-
-  var lines = [];
+  let lines = [];
   /* istanbul ignore next */
-  lr.on('error', function(err) {
+  lr.on('error', (err) => {
     /* istanbul ignore next */
     done([]);
   });
 
-  lr.on('line', function(line) {
+  lr.on('line', (line) => {
     lines.push(line);
   });
 
-  lr.on('end', function() {
+  lr.on('end', () => {
     done(lines);
   });
 }
 
-module.exports = function(fname, done) {
-  _getCodeLines(fname, function(lines) {
-    var out = babel.transformFileSync(fname);
-
-    var components = [];
-    var scanStack = [];
-    var callback = function(event, data) {
-      if(event === Scanner.EVENT_COMPONENT) {
-        data.snippet = lines.slice(data.startLine - 1, data.endLine).join("\n");
-        components.push(data);
-      }
-      if(event === Scanner.EVENT_END) {
-        if(scanStack.length > 1) {
-          scanStack.pop();
+export default (fname, done) => {
+  _getCodeLines(fname, (lines) => {
+    let components = [];
+    let imports = {};
+    const jsxFinder = ({ Plugin, types: t }) => {
+      return new Plugin("jsx-finder", {
+        visitor: {
+          JSXElement(node, parent) {
+            let name = node.openingElement.name.name;
+            let base = node.openingElement.name.name;
+            if(name === undefined) {
+              base = node.openingElement.name.object.name;
+              name = base + '.' + node.openingElement.name.property.name;
+            }
+            components.push({
+              component: name,
+              base: base,
+              startLine: node.loc.start.line,
+              endLine: node.loc.end.line
+            });
+          },
+          ImportDeclaration(node, parent) {
+            for(var s in node.specifiers) {
+              let spec = node.specifiers[s];
+              imports[spec.local.name] = node.source.value;
+            }
+          },
+          CallExpression(node, parent) {
+            if(node.callee.name === 'require') {
+              if(parent.type === 'VariableDeclarator') {
+                if(parent.id.name) {
+                  imports[parent.id.name] = node.arguments[0].value;
+                }
+                if(parent.id.properties) {
+                  for(var p in parent.id.properties) {
+                    var prop = parent.id.properties[p];
+                    imports[prop.key.name] = node.arguments[0].value;
+                  }
+                }
+              }
+            }
+          }
         }
+      });
+    }
+
+    babel.transformFileSync(fname, {
+      plugins: [ jsxFinder ]
+    });
+
+    for(var c in components) {
+      var comp = components[c];
+      if(imports[comp.component]) {
+        comp.import = imports[comp.component];
+      }
+      if(imports[comp.base]) {
+        comp.import = imports[comp.base];
       }
     }
-    scanStack.push(new Scanner(callback));
 
-    for(var t in out.ast.tokens) {
-      var tok = out.ast.tokens[t];
-
-      if(tok.type.label === 'jsxTagStart') {
-        if(scanStack[scanStack.length-1].isInTag()) {
-          scanStack.push(new Scanner(callback));
-        }
-      }
-
-      scanStack[scanStack.length-1].process(tok);
-    }
-
-    components = components.sort(function(a,b) {
+    components = components.sort((a,b) => {
       /* istanbul ignore next */
       if(a.component < b.component) {
         return -1;

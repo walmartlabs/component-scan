@@ -1,6 +1,6 @@
 var assert = require('assert');
-var findComponents = require('../src/scanner');
-var findComponentsBatch = require('../src/batch');
+var findComponents = require('../lib/scanner');
+var findComponentsBatch = require('../lib/batch');
 
 describe('Scanner', function() {
   describe('simple', function () {
@@ -8,14 +8,16 @@ describe('Scanner', function() {
       findComponents('examples/simple.jsx', function(components) {
         assert.equal(3, components.length);
         assert.equal('Button.State', components[0].component);
+        assert.equal('button', components[0].import);
         assert.equal('Label', components[1].component);
+        assert.equal('label', components[1].import);
         assert.equal('div', components[2].component);
-        assert.equal(7, components[0].startLine);
-        assert.equal(8, components[1].startLine);
-        assert.equal(6, components[2].startLine);
-        assert.equal(10, components[0].endLine);
-        assert.equal(8, components[1].endLine);
-        assert.equal(11, components[2].endLine);
+        assert.equal(9, components[0].startLine);
+        assert.equal(10, components[1].startLine);
+        assert.equal(8, components[2].startLine);
+        assert.equal(12, components[0].endLine);
+        assert.equal(10, components[1].endLine);
+        assert.equal(13, components[2].endLine);
         done();
       });
     });
@@ -27,10 +29,10 @@ describe('Scanner', function() {
         assert.equal(2, components.length);
         assert.equal('Foo', components[0].component);
         assert.equal('Nested', components[1].component);
-        assert.equal(6, components[0].startLine);
-        assert.equal(6, components[1].startLine);
-        assert.equal(7, components[0].endLine);
-        assert.equal(6, components[1].endLine);
+        assert.equal(8, components[0].startLine);
+        assert.equal(8, components[1].startLine);
+        assert.equal(9, components[0].endLine);
+        assert.equal(8, components[1].endLine);
         done();
       });
     });

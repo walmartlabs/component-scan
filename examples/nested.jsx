@@ -1,4 +1,6 @@
-var React = require('react');
+import React from 'react';
+import Foo from 'foo';
+import Nested from 'foo';
 
 module.exports = React.createClass({
   render: function() {

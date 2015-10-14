@@ -1,4 +1,4 @@
 module.exports = {
-  batch: require('./src/batch'),
-  scanner: require('./src/scanner')
+  batch: require('./lib/batch'),
+  scanner: require('./lib/scanner')
 };

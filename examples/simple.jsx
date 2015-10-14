@@ -1,4 +1,6 @@
-var React = require('react');
+import React from 'react';
+var Button = require('button');
+var {Label} = require('label');
 
 module.exports = React.createClass({
   render: function() {

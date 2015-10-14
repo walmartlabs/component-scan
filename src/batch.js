@@ -1,14 +1,14 @@
-var glob = require('glob');
-var async = require('async');
+import glob from 'glob';
+import async from 'async';
 
-var findComponents = require('./scanner.js');
+import findComponents from './scanner.js';
 
-module.exports = function(src, complete, error) {
-  glob(src, function(er, files) {
-    var output = {};
-    async.each(files, function(file, done) {
+export default (src, complete, error) => {
+  glob(src, (er, files) => {
+    let output = {};
+    async.each(files, (file, done) => {
       try {
-        findComponents(file, function(found) {
+        findComponents(file, (found) => {
           if(found.length > 0) {
             output[file] = found;
           }
@@ -17,7 +17,7 @@ module.exports = function(src, complete, error) {
       } catch(e) {
         error(file, e);
       }
-    }, function() {
+    }, () => {
       complete(output);
     });
   });
