@@ -29,6 +29,7 @@ describe('Scanner', function() {
         assert.equal(2, components.length);
         assert.equal('Foo', components[0].component);
         assert.equal('Nested', components[1].component);
+        assert.equal(4, components[0].attributes.length);
         assert.equal(8, components[0].startLine);
         assert.equal(8, components[1].startLine);
         assert.equal(9, components[0].endLine);

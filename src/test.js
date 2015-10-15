@@ -9,7 +9,7 @@ program
   .option('-s --src <file>', 'Source location', null, 'src')
   .parse(process.argv);
 
-findComponentsBatch(program.src, (er, files) => {
+findComponentsBatch(program.src, (output) => {
   console.log(JSON.stringify(output, null, 2));
 }, (file, e) => {
   console.log("Error parsing "+file);

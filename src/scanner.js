@@ -34,11 +34,19 @@ export default (fname, done) => {
               base = node.openingElement.name.object.name;
               name = base + '.' + node.openingElement.name.property.name;
             }
+            let attributes = [];
+            for(var a in node.openingElement.attributes) {
+              var attr = node.openingElement.attributes[a];
+              if(attr.name.name) {
+                attributes.push(attr.name.name);
+              }
+            }
             components.push({
               component: name,
               base: base,
               startLine: node.loc.start.line,
-              endLine: node.loc.end.line
+              endLine: node.loc.end.line,
+              attributes: attributes
             });
           },
           ImportDeclaration(node, parent) {

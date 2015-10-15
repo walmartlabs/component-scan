@@ -5,7 +5,7 @@ import Nested from 'foo';
 module.exports = React.createClass({
   render: function() {
     return (
-      <Foo content={<Nested />}>
+      <Foo content={<Nested />} a b c>
       </Foo>
     );
   }
