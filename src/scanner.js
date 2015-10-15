@@ -37,7 +37,7 @@ export default (fname, done) => {
             let attributes = [];
             for(var a in node.openingElement.attributes) {
               var attr = node.openingElement.attributes[a];
-              if(attr.name.name) {
+              if(attr.name && attr.name.name) {
                 attributes.push(attr.name.name);
               }
             }
