@@ -46,7 +46,8 @@ export default (fname, done) => {
               base: base,
               startLine: node.loc.start.line,
               endLine: node.loc.end.line,
-              attributes: attributes
+              attributes: attributes,
+              snippet: lines.slice(node.loc.start.line - 1, node.loc.end.line).join("\n")
             });
           },
           ImportDeclaration(node, parent) {
